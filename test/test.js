@@ -35,10 +35,10 @@ describe('server', function() {
         var fd = fs.openSync(fixturePath, 'w');
         fs.writeSync(fd, 'google');
         fs.closeSync(fd);
-
+        
         // Write data to the file.
         fs.writeFileSync(fixturePath, 'google');
-
+        
         request
           .get('/' + fixtureName)
           .expect(200, /google/, function (err) {
