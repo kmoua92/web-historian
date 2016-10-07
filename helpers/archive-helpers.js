@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var request = require('request');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -41,33 +42,85 @@ exports.isUrlInList = function(url, cb) {
 
     urlIndex !== -1 ? cb(true) : cb(false);
   });
+
+  // return new Promise((resolve, reject) => {
+  //   fs.readFile(this.paths.list, () => {
+  //     if (err) { reject(err); }
+
+  //     var urls = data.toString().split('\n');
+
+  //     var urlIndex = urls.indexOf(url);
+
+  //     // var urlFound = urls.filter( (element) => element === url );
+
+  //     urlIndex !== -1 ? resolve(true) : resolve(false);
+  //   });
+  // });
 };
 
 exports.isUrlArchived = function(url, cb) {
 
-  fs.access(this.paths.archivedSites + url, (err) => {
-    if (!err) {
-      cb(true);
-    } else {
-      cb(false);
-    }
+  // fs.access(this.paths.archivedSites + url, (err) => {
+  //   if (!err) {
+  //     cb(true);
+  //   } else {
+  //     cb(false);
+  //   }
+  // });
+
+  if (url.charAt(0) !== '/') {
+    url = '/' + url;
+  }
+
+  fs.readFile(this.paths.archivedSites + url, (err) => {
+    
+    (err) ? cb(false) : cb(true);
+
   });
 
 };
 
-exports.addUrlToList = function(url) {
+exports.addUrlToList = function(url, cb) {
 
-  fs.write('../archives/sites.txt', url);
+  var wrapperFunc = function() {
+    fs.writeFile(this.paths.list, url, (err) => {
+      if (err) { throw err; }
+    });
+  }.bind(this);
 
+  cb(url, wrapperFunc());
 };
 
 
 
 // For cronWorker
-exports.readListOfUrls = function() {
+exports.readListOfUrls = function(cb) {
   // for cronWorker
+  fs.readFile(this.paths.list, (err, data) => {
+    if (err) { throw err; }
+
+    data = data.toString().split('\n');
+
+    cb(data);
+  });
 };
 
-exports.downloadUrls = function() {
+exports.downloadUrls = function(urlArray) {
   // cronWorker
+  var context = this; 
+  // loop through array
+  urlArray.forEach((url) => {
+    
+    var uri = 'http://' + url;
+    var fileName = context.paths.archivedSites + '/' + url;
+
+    request(uri, function (err, response, body) {
+      body = JSON.stringify(body);
+      if (!err && response.statusCode === 200) {
+        
+        fs.writeFile(fileName, body);
+
+      }
+    });  
+  });
 };
