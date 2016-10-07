@@ -36,22 +36,23 @@ exports.handleRequest = function (req, res) {
 
   if (req.method === 'POST') {
     // if not in list
-    archive.isUrlInList(req.url, function(isFound) {
+    archive.isUrlInList(req.url, (isFound) => {
       if (!isFound) {
-        // console.log('===========================notFound')
         // append to list
         req.on('data', (data) => {
-          // console.log('data=============', data);
-          var urlRequested = data.toString().slice(4);
-          // console.log('parsed============', urlRequested);
-          fs.appendFile(archive.paths.list, urlRequested);
+          data = data.toString().slice(4) + '\n';
+
+          fs.writeFile(archive.paths.list, data, (err) => {
+            if (err) { throw err; }
+
+            res.writeHead(302, httpHelpers.headers);
+            res.end();
+          });
+
         });
       }
-        
-      
     });
 
-      // append to list
   }
 
 
