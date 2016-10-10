@@ -30,15 +30,12 @@ exports.initialize = function(pathsObj) {
 
 // For clientServer
 exports.isUrlInList = function(url, cb) {
-
   fs.readFile(this.paths.list, (err, data) => {
     if (err) { throw err; }
 
     var urls = data.toString().split('\n');
 
     var urlIndex = urls.indexOf(url);
-
-    // var urlFound = urls.filter( (element) => element === url );
 
     urlIndex !== -1 ? cb(true) : cb(false);
   });
@@ -83,7 +80,7 @@ exports.isUrlArchived = function(url, cb) {
 exports.addUrlToList = function(url, cb) {
 
   var wrapperFunc = function() {
-    fs.writeFile(this.paths.list, url, (err) => {
+    fs.appendFile(this.paths.list, url, (err) => {
       if (err) { throw err; }
     });
   }.bind(this);
