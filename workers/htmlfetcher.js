@@ -1,13 +1,17 @@
 // Use the code in `archive-helpers.js` to actually download the urls
 // that are waiting.
-var helpers = require('archive-helpers');
+var helpers = require('../helpers/archive-helpers');
+var cron = require('cron').CronJob;
 
-var cronWorker = new Cron({
-	cronTime: 05 * * * * *,
+var cronJob = new cron({
+	cronTime: '05 * * * * *',
 	onTick: () => {
 		helpers.readListOfUrls((urlArray) => {
 			helpers.downloadUrls(urlArray);
 		});
-	}
-	start: true
-}).CronJob;
+	},
+	start: true,
+	timeZone: 'America/Los_Angeles'
+});
+
+exports.cronJob = cronJob;

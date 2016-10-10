@@ -69,7 +69,7 @@ exports.isUrlArchived = function(url, cb) {
     url = '/' + url;
   }
 
-  fs.readFile(this.paths.archivedSites + url, (err) => {
+  fs.readFile(this.paths.archivedSites + url, (err, data) => {
     
     (err) ? cb(false) : cb(true);
 
@@ -111,8 +111,9 @@ exports.downloadUrls = function(urlArray) {
     var uri = 'http://' + url;
     var fileName = context.paths.archivedSites + '/' + url;
 
+
     request(uri, function (err, response, body) {
-      body = JSON.stringify(body);
+      
       if (!err && response.statusCode === 200) {
         
         fs.writeFile(fileName, body);
